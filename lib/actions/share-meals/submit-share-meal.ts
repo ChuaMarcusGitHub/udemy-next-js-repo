@@ -1,6 +1,7 @@
 'use server';
 
 import { saveMeal } from '@/lib/api-calls';
+import { redirect } from 'next/navigation';
 /*
 		'use server' is a directive that tells Next.js that this function should only be executed on the server side.
 		This is useful for functions that perform server-side operations, such as database queries or API calls.
@@ -19,7 +20,5 @@ export const submitShareMeal = async (formData: FormData) => {
 
 	console.log('meal', meal);
 	await saveMeal(meal);
+	redirect('/meals');
 };
-
-/* CRUD Operation for submit Share meal, saves to DB */
-const saveMeals = () => {};

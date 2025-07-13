@@ -6,6 +6,11 @@ import { MealsGrid } from '@/lib/components/meals/meals-grid';
 import { getMeals } from '@/lib/api-calls/meals/get-meals';
 import { MealsLoadingPage } from './loading-out';
 
+export const metadata = {
+	title: 'All Meals',
+	description: 'Browse the delicious meals shared by our community.',
+};
+
 /**
  *  Async component
  */

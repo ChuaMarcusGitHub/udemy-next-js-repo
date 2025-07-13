@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { useRef, useState } from 'react';
 import style from './image-picker.module.css';
-export const ImagePicker = ({ label, name }) => {
+export const ImagePicker = ({ label, name, alt }) => {
 	const [pickedImage, setPickedImage] = useState();
 	const inputRef = useRef();
 	const onClick = () => {
@@ -33,7 +33,7 @@ export const ImagePicker = ({ label, name }) => {
 					{!pickedImage ? (
 						<p>No image chosen</p>
 					) : (
-						<Image src={pickedImage} fill />
+						<Image src={pickedImage} alt={alt} fill />
 					)}
 				</div>
 				<input

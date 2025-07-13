@@ -4,7 +4,17 @@ import Image from 'next/image';
 import { Suspense } from 'react';
 import { MealsLoadingPage } from '../loading-out';
 import { notFound } from 'next/navigation';
+export async function generateMetadata({ params }) {
+	// whatever props are passed into this page will be available in the generateMetadata function
+	const { mealId } = params;
+	const details = await getMealDetail(mealId);
 
+	if (!details) {
+		return notFound(); // calls the closest notfound/error page.
+	}
+
+	return { title: details?.title, description: details?.summary };
+}
 const MealDetailsPage = async ({ params }) => {
 	const { mealId } = params;
 	const details = await getMealDetail(mealId);

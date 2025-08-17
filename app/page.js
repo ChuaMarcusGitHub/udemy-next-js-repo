@@ -1,7 +1,14 @@
+'use client';
+import { redirect } from 'next/navigation';
+
 export default function HomePage() {
-  return (
-    <div id="home">
-      <h1>Next.js Routing & Page Rendering</h1>
-    </div>
-  );
+	const handleRoute = (newRoute) => {
+		redirect(newRoute);
+	};
+	return (
+		<div id="home">
+			<h1>Next.js Routing & Page Rendering</h1>
+			<a onClick={() => handleRoute('/news')}>Go to News</a>
+		</div>
+	);
 }

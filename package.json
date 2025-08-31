@@ -1,5 +1,5 @@
 {
-  "name": "udemy-next-js-repo",
+  "name": "mutation",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,13 +9,10 @@
     "lint": "next lint"
   },
   "dependencies": {
-    "next": "15.3.2",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0"
-  },
-  "devDependencies": {
-    "@eslint/eslintrc": "^3",
-    "eslint": "^9.26.0",
-    "eslint-config-next": "15.3.2"
+    "better-sqlite3": "^9.4.3",
+    "cloudinary": "^2.0.2",
+    "next": "14.1.0",
+    "react": "^18",
+    "react-dom": "^18"
   }
 }

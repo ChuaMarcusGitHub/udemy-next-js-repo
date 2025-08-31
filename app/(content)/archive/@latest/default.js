@@ -6,8 +6,8 @@ import { getLatestNews } from '@/lib/utils/news';
     in this case. @archive/[year] exists as a necessity to its parent. but @latest
     does not need this [year]. So in its place we instead use `default.js/ts`
 */
-export default function LatestNewsPage() {
-	const latestNews = getLatestNews();
+export default async function LatestNewsPage() {
+	const latestNews = await getLatestNews();
 	return (
 		<>
 			<h2>Latest New</h2>

@@ -1,45 +1,78 @@
+'use client';
 import { formatDate } from '@/lib/format';
 import LikeButton from './like-icon';
+import { togglePostLikeStatus } from '@/actions/posts';
+import { useOptimistic } from 'react';
 
-function Post({ post }) {
-  return (
-    <article className="post">
-      <div className="post-image">
-        <img src={post.image} alt={post.title} />
-      </div>
-      <div className="post-content">
-        <header>
-          <div>
-            <h2>{post.title}</h2>
-            <p>
-              Shared by {post.userFirstName} on{' '}
-              <time dateTime={post.createdAt}>
-                {formatDate(post.createdAt)}
-              </time>
-            </p>
-          </div>
-          <div>
-            <LikeButton />
-          </div>
-        </header>
-        <p>{post.content}</p>
-      </div>
-    </article>
-  );
+function Post({ post, updateLikes }) {
+	return (
+		<article className="post">
+			<div className="post-image">
+				<img src={post.image} alt={post.title} />
+			</div>
+			<div className="post-content">
+				<header>
+					<div>
+						<h2>{post.title}</h2>
+						<p>
+							Shared by {post.userFirstName} on{' '}
+							<time dateTime={post.createdAt}>
+								{formatDate(post.createdAt)}
+							</time>
+						</p>
+					</div>
+					<div>
+						<form
+							action={updateLikes.bind(null, post.id)}
+							className={post.isLiked ? 'liked' : ''}
+						>
+							<LikeButton />
+						</form>
+					</div>
+				</header>
+				<p>{post.content}</p>
+			</div>
+		</article>
+	);
 }
 
 export default function Posts({ posts }) {
-  if (!posts || posts.length === 0) {
-    return <p>There are no posts yet. Maybe start sharing some?</p>;
-  }
+	const [newPosts, triggerOptimistic] = useOptimistic(
+		posts,
+		(prevPosts, updatePostId) => {
+			const updatedPostIndex = prevPosts.findIndex(
+				(post) => updatePostId === post.id
+			);
+			// No find posts
+			if (updatePostId === -1) {
+				return prevPosts;
+			}
+			const updatedPost = { ...prevPosts[updatedPostIndex] };
+			updatedPost.likes = updatedPost.likes = updatedPost.isLiked ? -1 : 1;
+			updatedPost.isLiked = !updatedPost.isLiked;
 
-  return (
-    <ul className="posts">
-      {posts.map((post) => (
-        <li key={post.id}>
-          <Post post={post} />
-        </li>
-      ))}
-    </ul>
-  );
+			const newPostLists = [...prevPosts];
+			newPostLists[updatedPostIndex] = updatedPost;
+			return newPostLists;
+		}
+	);
+
+	const updatePosts = async (postId) => {
+		triggerOptimistic(postId);
+		await togglePostLikeStatus(postId);
+	};
+
+	if (!newPosts || newPosts.length === 0) {
+		return <p>There are no posts yet. Maybe start sharing some?</p>;
+	}
+
+	return (
+		<ul className="posts">
+			{newPosts.map((post) => (
+				<li key={post.id}>
+					<Post post={post} updateLikes={updatePosts} />
+				</li>
+			))}
+		</ul>
+	);
 }

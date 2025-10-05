@@ -1,75 +1,96 @@
-"use client";
+'use client';
 
 import { useOptimistic } from 'react';
 
 import { formatDate } from '@/lib/format';
+import Image from 'next/image';
+
 import LikeButton from './like-icon';
 import { togglePostLikeStatus } from '@/actions/posts';
 
+function loader(config) {
+	const urlStart = config.src.split('upload/')[0];
+	const urlEnd = config.src.split('upload/')[1];
+	// Optimizes the image on cloudinary so that it pre-optimizes it when we download it into our project
+	const transformations = `w_200`;
+	return `${urlStart}upload/${transformations}/${urlEnd}`;
+}
 function Post({ post, action }) {
-  return (
-    <article className="post">
-      <div className="post-image">
-        <img src={post.image} alt={post.title} />
-      </div>
-      <div className="post-content">
-        <header>
-          <div>
-            <h2>{post.title}</h2>
-            <p>
-              Shared by {post.userFirstName} on{' '}
-              <time dateTime={post.createdAt}>
-                {formatDate(post.createdAt)}
-              </time>
-            </p>
-          </div>
-          <div>
-            <form
-              action={action.bind(null, post.id)}
-              className={post.isLiked ? 'liked' : ''}
-            >
-              <LikeButton />
-            </form>
-          </div>
-        </header>
-        <p>{post.content}</p>
-      </div>
-    </article>
-  );
+	return (
+		<article className="post">
+			<div className="post-image">
+				<Image
+					// Loader is used to set up the image before the image is rendered
+					loader={loader}
+					src={post.image}
+					width={200}
+					height={120} // doesn't matter because the loader will resize
+					alt={post.title}
+				/>
+			</div>
+			<div className="post-content">
+				<header>
+					<div>
+						<h2>{post.title}</h2>
+						<p>
+							Shared by {post.userFirstName} on{' '}
+							<time dateTime={post.createdAt}>
+								{formatDate(post.createdAt)}
+							</time>
+						</p>
+					</div>
+					<div>
+						<form
+							action={action.bind(null, post.id)}
+							className={post.isLiked ? 'liked' : ''}
+						>
+							<LikeButton />
+						</form>
+					</div>
+				</header>
+				<p>{post.content}</p>
+			</div>
+		</article>
+	);
 }
 
 export default function Posts({ posts }) {
-  const [optimisticPosts, updateOptimisticPosts] = useOptimistic(posts, (prevPosts, updatedPostId) => {
-    const updatedPostIndex = prevPosts.findIndex(post => post.id === updatedPostId);
+	const [optimisticPosts, updateOptimisticPosts] = useOptimistic(
+		posts,
+		(prevPosts, updatedPostId) => {
+			const updatedPostIndex = prevPosts.findIndex(
+				(post) => post.id === updatedPostId
+			);
 
-    if (updatedPostIndex === -1) {
-      return prevPosts;
-    }
+			if (updatedPostIndex === -1) {
+				return prevPosts;
+			}
 
-    const updatedPost = { ...prevPosts[updatedPostIndex] };
-    updatedPost.likes = updatedPost.likes + (updatedPost.isLiked ? -1 : 1);
-    updatedPost.isLiked = !updatedPost.isLiked;
-    const newPosts = [...prevPosts];
-    newPosts[updatedPostIndex] = updatedPost;
-    return newPosts;
-  })
+			const updatedPost = { ...prevPosts[updatedPostIndex] };
+			updatedPost.likes = updatedPost.likes + (updatedPost.isLiked ? -1 : 1);
+			updatedPost.isLiked = !updatedPost.isLiked;
+			const newPosts = [...prevPosts];
+			newPosts[updatedPostIndex] = updatedPost;
+			return newPosts;
+		}
+	);
 
-  if (!optimisticPosts || optimisticPosts.length === 0) {
-    return <p>There are no posts yet. Maybe start sharing some?</p>;
-  }
+	if (!optimisticPosts || optimisticPosts.length === 0) {
+		return <p>There are no posts yet. Maybe start sharing some?</p>;
+	}
 
-  async function updatePost(postId) {
-    updateOptimisticPosts(postId);
-    await togglePostLikeStatus(postId);
-  }
+	async function updatePost(postId) {
+		updateOptimisticPosts(postId);
+		await togglePostLikeStatus(postId);
+	}
 
-  return (
-    <ul className="posts">
-      {optimisticPosts.map((post) => (
-        <li key={post.id}>
-          <Post post={post} action={updatePost} />
-        </li>
-      ))}
-    </ul>
-  );
+	return (
+		<ul className="posts">
+			{optimisticPosts.map((post) => (
+				<li key={post.id}>
+					<Post post={post} action={updatePost} />
+				</li>
+			))}
+		</ul>
+	);
 }
